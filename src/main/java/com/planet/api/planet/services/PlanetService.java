@@ -1,23 +1,20 @@
 package com.planet.api.planet.services;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import com.planet.api.planet.model.Planet;
-import com.planet.api.planet.model.response.ResponseRest.ResponseRestPlanet;
-import com.planet.api.planet.model.response.ResponseRest.SwapPlanet;
 import com.planet.api.planet.repository.PlanetRepository;
 import com.planet.api.planet.services.exception.NonExistPlanetException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.*;
 import java.util.Optional;
 
 @org.springframework.stereotype.Service
 public class PlanetService implements Service<Planet> {
+
+    private Logger log = LoggerFactory.getLogger(PlanetService.class);
 
     @Autowired
     private PlanetRepository planetRepository;
@@ -26,56 +23,55 @@ public class PlanetService implements Service<Planet> {
 
     @Override
     public Planet findById(String id) {
+        log.info("Accessing the database repository to get the planet by id: "+ id);
         Optional<Planet> planet = planetRepository.findById(id);
-        if(planet.isEmpty())
+        if(planet.isEmpty()) {
+            log.error("Returning exception with status 404 the planet is not found by id :"+id);
             throw new NonExistPlanetException();
+        }
+        swapService.listFimlsWithPlanets(planet.get());
         return planet.get();
     }
 
     @Override
     public Page<Planet> findAll(Pageable pageable) {
-         return formatedPlanet(planetRepository.findAll(pageable));
+        log.info("accessing the database to obtain all the planets paginated with their films");
+        return formatedPlanet(planetRepository.findAll(pageable));
     }
     @Override
     public Page<Planet> findByName(Pageable pageable, String name) {
+        log.info("Find planet by Name");
         return formatedPlanet(planetRepository.findByName(name, pageable));
     }
 
     @Override
     public void delete(String id) {
+        log.info("delete object planet by Id");
         Planet pln = findById(id);
         planetRepository.delete(pln);
     }
 
     @Override
     public Planet create(Planet planet) {
-        return planetRepository.save(planet);
+        log.info("Created object planet after valid properties");
+        Planet plnCreated = planetRepository.save(planet);
+        swapService.listFimlsWithPlanets(plnCreated);
+        return plnCreated;
     }
 
     public Planet update(String id, Planet planet) {
+        log.info("Update object planet and copying properties that have not changed");
         Planet pln = findById(id);
         BeanUtils.copyProperties(planet, pln, "id");
-        return planetRepository.save(planet);
+        Planet plnUpdated = planetRepository.save(planet);
+        swapService.listFimlsWithPlanets(plnUpdated);
+        return plnUpdated;
     }
 
     private Page<Planet> formatedPlanet(Page<Planet> pagePlanetsAll) {
         return pagePlanetsAll.map(planet -> {
-            List<String> listTitleMovies = new ArrayList<String>();
-            Optional<Planet> planetFind = null;
-            try {
-                planetFind = Optional.of(swapService.findPlanetWithMovies(planet));
-            } catch (UnirestException e) {
-                e.printStackTrace();
-            }
-            if(planetFind.get().getFilms().size() > 0) {
-                planet.setFilms(planetFind.get().getFilms());
-                planet.setNumberOfFilmAppearances(planet.getFilms().size());
-                return planet;
-            } else {
-                listTitleMovies.add("There are no films for this planet");
-                planet.setFilms(listTitleMovies);
-                return planet;
-            }
+            swapService.listFimlsWithPlanets(planet);
+            return planet;
         });
     }
 

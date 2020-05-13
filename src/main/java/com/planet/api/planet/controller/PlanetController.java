@@ -28,6 +28,7 @@ import java.util.*;
 public class PlanetController implements Controller<Planet> {
 
     private Logger log =LoggerFactory.getLogger(PlanetController.class);
+
     @Autowired
     private ApplicationEventPublisher publisher;
 
@@ -38,13 +39,14 @@ public class PlanetController implements Controller<Planet> {
     @GetMapping("/planets/id/{id}")
     @Override
     public ResponseEntity<Planet> findById(@PathVariable String id) {
-        log.info("");
-        return new ResponseEntity<Planet>(planetService.findById(id), HttpStatus.OK);
+        log.info("Search planet by Id");
+        Planet planet = planetService.findById(id);
+       return planet != null ? ResponseEntity.ok(planet) :  ResponseEntity.notFound().build();
     }
     @ApiOperation(value="Find all Planets")
     @GetMapping("/planets")
     @Override
-    public ResponseEntity finAll(@RequestParam(value = "offset",
+    public ResponseEntity findAll(@RequestParam(value = "offset",
             required = false, defaultValue = "0") int offset, @RequestParam(value = "limit",  required = false,defaultValue = "10") int limit) {
        Pageable pageable = PageRequest.of(offset,limit);
         var planetPage = planetService.findAll(pageable);
@@ -64,8 +66,8 @@ public class PlanetController implements Controller<Planet> {
         var planetPage = planetService.findByName(pageable, name);
 
         if (planetPage.isEmpty())
-            return new ResponseEntity(HttpStatus.NO_CONTENT);
-        return new ResponseEntity(new PageImpl<Planet>(planetPage.getContent(), pageable, planetPage.getSize()), HttpStatus.OK);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        return ResponseEntity.ok(new PageImpl<Planet>(planetPage.getContent(), pageable, planetPage.getSize()));
     }
     @ApiOperation(value="Create Planets")
     @PostMapping("/planets")

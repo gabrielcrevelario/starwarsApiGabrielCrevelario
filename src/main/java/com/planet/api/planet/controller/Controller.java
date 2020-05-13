@@ -11,7 +11,7 @@ import java.awt.print.Pageable;
 
 public interface Controller<T> {
     ResponseEntity<T> findById(@PathVariable String id);
-    ResponseEntity finAll(@RequestParam(value = "offset",  required = false) int offset, @RequestParam(value = "limit",  required = false) int limit);
+    ResponseEntity findAll(@RequestParam(value = "offset",  required = false) int offset, @RequestParam(value = "limit",  required = false) int limit);
     ResponseEntity findByName(@PathVariable String name, @RequestParam(value = "offset",  required = false) int offset, @RequestParam(value = "limit",
             required = false) int limit);
     ResponseEntity create(@RequestBody @Valid T t, HttpServletResponse response);
