@@ -48,6 +48,7 @@ public class PlanetController implements Controller<Planet> {
     @Override
     public ResponseEntity findAll(@RequestParam(value = "offset",
             required = false, defaultValue = "0") int offset, @RequestParam(value = "limit",  required = false,defaultValue = "10") int limit) {
+        log.info("Search all planets");
        Pageable pageable = PageRequest.of(offset,limit);
         var planetPage = planetService.findAll(pageable);
 
@@ -63,6 +64,7 @@ public class PlanetController implements Controller<Planet> {
                                         @RequestParam(value = "offset",  required = false, defaultValue = "0") int offset,
                                      @RequestParam(value = "limit",  required = false,defaultValue = "10") int limit ) {
         Pageable pageable = PageRequest.of(offset, limit);
+        log.info("Search planets by name");
         var planetPage = planetService.findByName(pageable, name);
 
         if (planetPage.isEmpty())
@@ -73,6 +75,7 @@ public class PlanetController implements Controller<Planet> {
     @PostMapping("/planets")
     @Override
     public ResponseEntity create(@RequestBody @Valid Planet planet, HttpServletResponse response) {
+        log.info("Create planet");
         Planet plnCreated = planetService.create(planet);
         publisher.publishEvent(new ResourceCreateEvent(this, response, plnCreated.getId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(plnCreated);
@@ -84,6 +87,7 @@ public class PlanetController implements Controller<Planet> {
     public ResponseEntity<Planet> update(@RequestParam(defaultValue = "id") String id,
                                          HttpServletResponse response, @RequestBody @Valid Planet planet) {
         Planet plnUpdate = planetService.update(id, planet);
+        log.info("Update planet");
         publisher.publishEvent(new ResourceCreateEvent(this, response, plnUpdate.getId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(plnUpdate);
     }
@@ -91,6 +95,7 @@ public class PlanetController implements Controller<Planet> {
     @DeleteMapping("/planets")
     @Override
     public ResponseEntity delete(@RequestParam(defaultValue = "id") String id) {
+        log.info("Delete planet by id");
         planetService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Planet Removed");
     }
