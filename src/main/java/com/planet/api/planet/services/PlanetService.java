@@ -25,12 +25,13 @@ public class PlanetService implements Service<Planet> {
     public Planet findById(String id) {
         log.info("Accessing the database repository to get the planet by id: "+ id);
         Optional<Planet> planet = planetRepository.findById(id);
-        if(planet.isEmpty()) {
-            log.error("Returning exception with status 404 the planet is not found by id :"+id);
+        if (planet.isPresent()) {
+            swapService.listFimlsWithPlanets(planet.get());
+            return planet.get();
+        } else {
+            log.error("Returning exception with status 404 the planet is not found by id :" + id);
             throw new NonExistPlanetException();
         }
-        swapService.listFimlsWithPlanets(planet.get());
-        return planet.get();
     }
 
     @Override

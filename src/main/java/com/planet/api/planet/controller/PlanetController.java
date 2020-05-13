@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -50,7 +49,7 @@ public class PlanetController implements Controller<Planet> {
             required = false, defaultValue = "0") int offset, @RequestParam(value = "limit",  required = false,defaultValue = "10") int limit) {
         log.info("Search all planets");
        Pageable pageable = PageRequest.of(offset,limit);
-        var planetPage = planetService.findAll(pageable);
+        Page<Planet> planetPage = planetService.findAll(pageable);
 
         if(planetPage.isEmpty())
             return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -65,7 +64,7 @@ public class PlanetController implements Controller<Planet> {
                                      @RequestParam(value = "limit",  required = false,defaultValue = "10") int limit ) {
         Pageable pageable = PageRequest.of(offset, limit);
         log.info("Search planets by name");
-        var planetPage = planetService.findByName(pageable, name);
+        Page<Planet> planetPage = planetService.findByName(pageable, name);
 
         if (planetPage.isEmpty())
             return new ResponseEntity(HttpStatus.NOT_FOUND);
