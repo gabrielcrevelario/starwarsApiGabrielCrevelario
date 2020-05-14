@@ -16,5 +16,5 @@ public interface Controller<T> {
             required = false) int limit);
     ResponseEntity create(@RequestBody @Valid T t, HttpServletResponse response);
     ResponseEntity<T> update(@PathVariable String id,HttpServletResponse response, @RequestBody @Valid T t);
-    ResponseEntity delete(@PathVariable String id);
+    void delete(@PathVariable String id);
 }

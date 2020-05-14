@@ -22,11 +22,11 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api")
-@Api(value="API REST Planets")
+@Api(value = "API REST Planets")
 @CrossOrigin(origins = "*")
 public class PlanetController implements Controller<Planet> {
 
-    private Logger log =LoggerFactory.getLogger(PlanetController.class);
+    private Logger log = LoggerFactory.getLogger(PlanetController.class);
 
     @Autowired
     private ApplicationEventPublisher publisher;
@@ -34,34 +34,35 @@ public class PlanetController implements Controller<Planet> {
     @Autowired
     private PlanetService planetService;
 
-    @ApiOperation(value="Find Planets by Id")
+    @ApiOperation(value = "Find Planets by Id")
     @GetMapping("/planets/id/{id}")
     @Override
     public ResponseEntity<Planet> findById(@PathVariable String id) {
         log.info("Search planet by Id");
         Planet planet = planetService.findById(id);
-       return planet != null ? ResponseEntity.ok(planet) :  ResponseEntity.notFound().build();
+        return planet != null ? ResponseEntity.ok(planet) : ResponseEntity.notFound().build();
     }
-    @ApiOperation(value="Find all Planets")
+
+    @ApiOperation(value = "Find all Planets")
     @GetMapping("/planets")
     @Override
     public ResponseEntity findAll(@RequestParam(value = "offset",
-            required = false, defaultValue = "0") int offset, @RequestParam(value = "limit",  required = false,defaultValue = "10") int limit) {
+            required = false, defaultValue = "0") int offset, @RequestParam(value = "limit", required = false, defaultValue = "10") int limit) {
         log.info("Search all planets");
-       Pageable pageable = PageRequest.of(offset,limit);
+        Pageable pageable = PageRequest.of(offset, limit);
         Page<Planet> planetPage = planetService.findAll(pageable);
 
-        if(planetPage.isEmpty())
+        if (planetPage.isEmpty())
             return new ResponseEntity(HttpStatus.NO_CONTENT);
         return new ResponseEntity(new PageImpl<Planet>(planetPage.getContent(), pageable, planetPage.getSize()), HttpStatus.OK);
     }
 
-    @ApiOperation(value="Find Planets by name")
+    @ApiOperation(value = "Find Planets by name")
     @GetMapping("/planets/name/{name}")
     @Override
-    public ResponseEntity findByName( @PathVariable String name,
-                                        @RequestParam(value = "offset",  required = false, defaultValue = "0") int offset,
-                                     @RequestParam(value = "limit",  required = false,defaultValue = "10") int limit ) {
+    public ResponseEntity findByName(@PathVariable String name,
+                                     @RequestParam(value = "offset", required = false, defaultValue = "0") int offset,
+                                     @RequestParam(value = "limit", required = false, defaultValue = "10") int limit) {
         Pageable pageable = PageRequest.of(offset, limit);
         log.info("Search planets by name");
         Page<Planet> planetPage = planetService.findByName(pageable, name);
@@ -70,7 +71,8 @@ public class PlanetController implements Controller<Planet> {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         return ResponseEntity.ok(new PageImpl<Planet>(planetPage.getContent(), pageable, planetPage.getSize()));
     }
-    @ApiOperation(value="Create Planets")
+
+    @ApiOperation(value = "Create Planets")
     @PostMapping("/planets")
     @Override
     public ResponseEntity create(@RequestBody @Valid Planet planet, HttpServletResponse response) {
@@ -80,22 +82,24 @@ public class PlanetController implements Controller<Planet> {
         return ResponseEntity.status(HttpStatus.CREATED).body(plnCreated);
     }
 
-    @ApiOperation(value="Update Planets")
-    @PutMapping("/planets")
+    @ApiOperation(value = "Update Planets")
+    @PutMapping("/planets/{id}")
     @Override
-    public ResponseEntity<Planet> update(@RequestParam(defaultValue = "id") String id,
+    public ResponseEntity<Planet> update(@PathVariable String id,
                                          HttpServletResponse response, @RequestBody @Valid Planet planet) {
         Planet plnUpdate = planetService.update(id, planet);
         log.info("Update planet");
         publisher.publishEvent(new ResourceCreateEvent(this, response, plnUpdate.getId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(plnUpdate);
     }
-    @ApiOperation(value="Delete Planets")
-    @DeleteMapping("/planets")
+
+    @ApiOperation(value = "Delete Planets")
+    @DeleteMapping("/planets/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Override
-    public ResponseEntity delete(@RequestParam(defaultValue = "id") String id) {
+    public void delete(@PathVariable String id) {
         log.info("Delete planet by id");
         planetService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Planet Removed");
     }
+
 }

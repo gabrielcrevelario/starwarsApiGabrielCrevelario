@@ -1,7 +1,6 @@
 package com.planet.api.planet.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import java.util.*;
@@ -38,4 +37,18 @@ public class Planet {
 
     private int numberOfFilmAppearances;
 
+    public Planet() {
+    }
+
+    public Planet(String id, @NotBlank String name, @NotNull String climate, @NotBlank String terrain, String diameter, String gravity, String population, List<String> films, int numberOfFilmAppearances) {
+        this.id = id;
+        this.name = name;
+        this.climate = climate;
+        this.terrain = terrain;
+        this.diameter = diameter;
+        this.gravity = gravity;
+        this.population = population;
+        this.films = films;
+        this.numberOfFilmAppearances = numberOfFilmAppearances;
+    }
 }

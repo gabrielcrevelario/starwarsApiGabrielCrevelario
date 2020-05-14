@@ -56,7 +56,7 @@ public class PlanetExceptionHandler extends ResponseEntityExceptionHandler {
                 LocaleContextHolder.getLocale());
         String messageDevelopment = ex.toString();
         List<Error> erros = Arrays.asList(new Error(messageUser, messageDevelopment));
-        return handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+        return handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,

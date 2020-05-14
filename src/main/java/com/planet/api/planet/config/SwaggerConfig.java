@@ -1,5 +1,7 @@
 package com.planet.api.planet.config;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -16,6 +18,7 @@ import static springfox.documentation.builders.PathSelectors.regex;
 
 @Configuration
 @EnableSwagger2
+@AllArgsConstructor
 public class SwaggerConfig {
     @Bean
     public Docket productApi() {

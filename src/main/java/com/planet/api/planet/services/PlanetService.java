@@ -59,11 +59,12 @@ public class PlanetService implements Service<Planet> {
         swapService.listFimlsWithPlanets(plnCreated);
         return plnCreated;
     }
-
+    @Override
     public Planet update(String id, Planet planet) {
         log.info("Update object planet and copying properties that have not changed");
         Planet pln = findById(id);
-        BeanUtils.copyProperties(planet, pln, "id");
+        BeanUtils.copyProperties(planet, pln);
+        planet.setId(id);
         Planet plnUpdated = planetRepository.save(planet);
         swapService.listFimlsWithPlanets(plnUpdated);
         return plnUpdated;
